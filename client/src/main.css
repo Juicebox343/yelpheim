@@ -1,0 +1,446 @@
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@100;200;400;500&display=swap');
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root{
+    --main-font: 'Raleway', sans-serif;
+}
+
+p, a, span, button, select, label, li{
+    font-family: var(--main-font);
+    font-weight: 200;
+    color: #d2d2d2;
+
+}
+
+h1, h2{
+    font-family: var(--main-font);
+    font-weight: 100; 
+    color: #D2D2D2;
+}
+
+h2{
+    font-weight: 400; 
+    margin-bottom: .5rem
+}
+
+
+button{
+    background-color: #005073;
+    border: none;
+    padding: .5rem;
+    font-size: 1.1rem;
+}
+
+select{
+    font-size: 1rem;
+    appearance: none;
+    border: none;
+    padding: .5rem;
+    margin: 0;
+    grid-area: select;
+    background-color: transparent;
+    width: 202px;
+    transform: translateX(-1px);
+}
+
+select, input, button, textarea{
+    border: 2px solid transparent;
+}
+
+input{
+    background-color: #005073;
+    color: #d2d2d2;
+}
+
+select:focus, button:focus, input:focus, textarea:focus{
+    outline: none;
+    border: 2px solid #0078bd;
+}
+
+.customSelect{
+    display: grid;
+    grid-template-areas: "select";
+    align-items: center;
+    border: none;
+    font-size: 1.25rem;
+    cursor: pointer;
+    background-color: #005073;
+    position: relative;
+    width: 200px;
+    z-index: 100;
+  }
+
+  
+  .customSelect::after {
+    grid-area: select;
+    margin: .6rem .5rem .4rem;
+    justify-self: end;
+    content: "";
+    width: 1rem;
+    height: 1rem;
+    background-color: #0F6FA6;
+    clip-path: polygon(50% 80%, 0 0, 100% 0%);
+    pointer-events: none;
+  }
+
+  .customSelect option{
+      background-color:#005073;
+      border: none;
+      outline: 0;
+  }
+
+  .customSelect option:disabled{
+    background-color:#005073;
+    border: none;
+    outline: 0;
+}
+
+body{
+    background-image: url('forest-LUYT9QX-blue.jpg');
+    background-position: center;
+    background-size: cover;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    width: 100vw;
+    height: 100vh;
+    overflow-x: hidden;
+}
+
+main{
+    max-width: 1400px;
+    height: 100vh;
+    margin: auto;
+    padding: 0 2rem;
+}
+
+.loginPage{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.loginPage .container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+header{
+    color: white;
+    font-size: 2.5rem;
+    width: 100%;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    margin: 1rem 0;
+}
+
+header span{
+    font-size: 1.5rem;
+    color: #d2d2d2;
+}
+
+.divideMe{
+    display: inline-block;
+    width: 1px;
+    height: 100%;
+    background-color: #D2D2D2;
+    margin: 0 2rem;
+}
+
+.dropMe{
+    display: block;
+}
+
+.userAccountForm{
+    width: 400px;
+    height: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    color: #D2D2D2;
+}
+
+.userAccountForm p{
+    text-align: center;
+    font-size: 1.3rem;
+    margin-bottom: 1.5rem;
+}
+
+
+.userAccountForm div{
+    width: 200px;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+}
+
+.userAccountForm label{
+    width: 200px;
+}
+
+.userAccountForm input{
+    width: 100%;
+    line-height: 150%;
+    background-color: #D2D2D2;
+    border: none;
+    margin: .2rem 0;
+    color: #2d2d2d;
+}
+
+button.actionButton{
+    font-weight: 500;
+    border: 1px solid #C53B00;
+    background-color: transparent;
+    color: #C53B00;
+    padding: .2rem;
+    font-size: 1.1rem;
+    width: 45%;
+    cursor: pointer;
+}
+
+.registerLink{
+    font-weight: 500;
+    display: inline-block;
+    color: #D2D2D2;
+    border: 1px solid #D2D2D2;
+    padding: .25rem;
+    width: 45%;
+    text-align: center;
+}
+
+.container{
+    width: 100%;
+    height: 100%;
+ }
+
+main{
+    display: flex;
+}
+
+aside{
+    width: 300px;
+    margin-right: 1rem;
+}
+
+.searchContainer{
+    text-align: center;
+}
+
+.searchContainer input{
+    line-height: 180%;
+    font-size: 1.2rem;
+    padding: .2rem;
+    width: 50%;
+}
+
+.searchContainer form div{
+    display: flex;
+    justify-content: center;
+}
+
+
+
+.truncatedTagList{
+    display: flex;
+    justify-content: center;
+    margin: .5rem 0;
+}
+
+.truncatedTagList li{
+    list-style-type: none;
+    margin: 0 1rem;
+    font-size: .8rem;
+    font-weight: 100;
+}
+
+.truncatedTagList li a{
+    font-weight: 400;
+}
+
+.attentionButton{
+    background-color: #992e00;   
+    font-weight: 500;
+    width: 110px;
+    color: #D2D2D2;
+}
+.worldSelect{
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+}
+
+.worldSelect a{
+    font-size: 2.5rem;
+    padding: 0      .7rem;             
+    margin: 0 .8rem -.3rem;
+    text-decoration: none;
+    border: 2px solid transparent;
+}
+
+.worldSelect a:focus{
+    outline: none;
+    border: 2px solid #0078bd;
+}
+
+.clearSelection{
+    font-size: .8rem;
+    width: 75px;
+    height: 37.667px;
+    padding: 0;
+    margin-left: 10px;
+}
+
+.worldInfo{
+    margin: 1rem 0;
+}
+
+.worldInfo > div{
+    margin: 2rem 0;
+}
+
+.locationList{
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+
+.locationList li{
+    list-style: none;
+    text-decoration: none;
+    width: 200px;
+    height: 200px;
+    background-color: #005073;
+    margin: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+
+
+.hoverHands{
+    transform: scale(1);
+    transition: transform .1s;
+}
+
+.hoverHands:hover{
+    transform: scale(1.05);
+
+}
+
+.locationList h3{
+    margin: 1rem;
+
+}
+
+.locationList a{
+    align-self: flex-start;
+}
+
+.locationList button{
+    background-color: #0F6FA6;
+    margin: .4rem;
+    padding: .2rem .8rem;
+}
+
+li.addLocationLink{
+    width: initial;
+    height: initial;
+    background-color: transparent;
+    align-items: flex-end;
+}
+
+.bossList{
+    list-style: none;
+    margin-left: 1rem;
+}
+
+.bossMessage{
+    margin: 2rem 0;
+    animation: emphasizeMe 5s infinite ease-in;
+    text-shadow: 0px 0px 25px #d2d2d2, 0px 0px 20px rgb(61, 149, 207);
+}
+
+@keyframes emphasizeMe{
+    0% {
+        color: #8adaff;
+        text-shadow: 0px 0px 25px #d2d2d2, 0px 0px 20px rgb(61, 149, 207);
+    }
+    50% {
+        color: #d2d2d2;
+        text-shadow: 0px 0px 15px #d2d2d2, 0px 0px 10px rgb(61, 149, 207);
+    }
+    100% {
+        color: #8adaff;
+        text-shadow: 0px 0px 25px #d2d2d2, 0px 0px 20px rgb(61, 149, 207);
+    }
+}
+
+.sub-container{
+    text-align: center;
+}
+
+
+.biomeBrowse{
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.biomeBrowse div{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.biomeBrowse li{
+    list-style-type: none;
+    margin: 1rem;
+    width: 200px;
+    height: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    text-align: center;
+    overflow: hidden;
+}
+
+.biomeBrowse img{
+    width: 100%;
+    height: auto;
+}
+
+.greeting{
+    font-size: 1.75rem;
+    display: block;
+    margin-bottom: 2rem;
+}
+
+.main-container{
+    width: 100%;
+}
+
+.search-results .main-container li{
+    list-style-type: none;
+    width: 100%;
+    height: 200px;
+    background-color: #005073;
+    display: grid;
+    grid-template-columns: 1fr 4fr 1fr;
+    grid-template-rows: 1fr 2fr 1fr;
+}
+
+.search-results .main-container li img{
+    height: 100%;
+    width: auto;
+}
