@@ -47,10 +47,10 @@ const LocationDetailPage = () => {
     const fetchData = async () => {
       try {
         const response = await publicFetch.get(`/locations/${location_id}`);
-        setSelectedLocation(response.data.data.location_data[0]);
+        setSelectedLocation(response.data.data.selectedLocation[0]);
         setLocalStorage(
           "selectedLocation",
-          response.data.data.location_data[0]
+          response.data.data.selectedLocation[0]
         );
       } catch (err) {
         console.log(err);
@@ -117,7 +117,7 @@ const LocationDetailPage = () => {
               </div>
             </div>
           )}
-        </section>
+        </section> */}
       </main>
     </>
   );

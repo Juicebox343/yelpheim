@@ -185,7 +185,7 @@ app.get("/api/v1", async (req, res) =>{
             const tags = await db.query("SELECT id, tag_name FROM tags;");
             const biomes = await db.query("SELECT id, biome_name FROM biomes;");
             const dangers = await db.query("SELECT id, danger_name FROM dangers;");
-            const allLocations = await db.query("SELECT id, location_name, world_id, builder_username FROM locations ORDER BY created_at DESC LIMIT 5;");
+            const allLocations = await db.query("SELECT * FROM locations ORDER BY created_at DESC LIMIT 5;");
             const allWorlds = await db.query("SELECT id, world_name, owner_username, seed, bosses_defeated, map_id, header_id FROM worlds;");
 
             // My Data
@@ -241,34 +241,23 @@ app.get("/api/v1", async (req, res) =>{
     } 
 })
 
+// Location detail page
+app.get("/api/v1/locations/:location_id", isLoggedIn, async (req, res) =>{
+    try{
+        const selectedLocation = await db.query("select locations.id, locations.location_name, locations.location_description, locations.builder_username, biomes.biome_name, worlds.world_name, tags.tag_name, dangers.danger_name from locations left join locations_biomes on locations_biomes.location_id = locations.id left join biomes on biomes.id = locations_biomes.biome_id left join locations_dangers on locations_dangers.location_id = locations.id left join dangers on dangers.id = locations_dangers.danger_id left join locations_tags on locations_tags.location_id = locations.id left join tags on tags.id = locations_tags.tag_id left join worlds on worlds.id = locations.world_id where locations.id = $1", [req.params.location_id]);
+        res.status(200).json({
+            status: "success",
+            data: {
+                selectedLocation: selectedLocation.rows
+            }
+        });
+    } catch (err){
+        console.log(err);
+    }
+})
 
-// // Get all worlds and data for a user
-// app.get("/api/v1/:username", isLoggedIn, async (req, res) =>{
-//         try{
-//             const tag_data = await db.query("SELECT id, tag_name FROM tags;");
-//             const my_locations = await db.query("SELECT id, location_name, world_id, builder_username FROM locations WHERE builder_username = $1;", [req.user.username])
-//             const world_data = await db.query("SELECT id, world_name, seed, owner_username AS world_owner, bosses_defeated FROM worlds LEFT JOIN worlds_users ON worlds_users.world_id = worlds.id WHERE worlds_users.username = $1;", [req.user.username]);
-//             // const location_data = await db.query("SELECT id, location_name, world_id FROM locations WHERE world_id = $1;", [req.params.id])
-//             // const world_residents = await db.query("SELECT worlds_users.username, users.first_name FROM worlds_users RIGHT JOIN users ON worlds_users.username = users.username WHERE world_id = 1;")
-//             // if(world_data === true){
-//             //     world_data = world_data.rows;
-//             //     //append resident data to world data json this way cuz i couldnt figure it out in sql
-//             //     world_data['residents'] = world_residents.rows
-//             // } 
-//             res.status(200).json({
-//                 status: "success",
-//                 data: {
-//                     user_data: req.user,
-//                     world_data: world_data.rows,
-//                     tag_data: tag_data.rows,
-//                     my_locations: my_locations.rows
-//                     // location_data: location_data.rows
-//                 }
-//             });
-//         } catch (err){
-//             console.log(err);
-//         } 
-// })
+
+
 
 // Get all worlds and data for a user
 app.get("/api/v1/worlds/:world_id", isLoggedIn, async (req, res) =>{
@@ -291,20 +280,6 @@ app.get("/api/v1/worlds/:world_id", isLoggedIn, async (req, res) =>{
     } 
 })
 
-// Location detail page
-app.get("/api/v1/locations/:location_id", isLoggedIn, async (req, res) =>{
-    try{
-        const selectedLocation = await db.query("SELECT * FROM locations WHERE id = $1", [req.params.location_id]);
-        res.status(200).json({
-            status: "success",
-            data: {
-                selectedLocation: selectedLocation.rows
-            }
-        });
-    } catch (err){
-        console.log(err);
-    }
-})
 
 //Add a world
 app.post("/api/v1/worlds", isLoggedIn, async (req, res) =>{
@@ -393,7 +368,9 @@ app.delete("/api/v1/locations/:location_id", isLoggedIn, async (req, res) =>{
 // search
 app.get("/api/v1/search/:searchTerm", async (req, res) =>{
     try{
-        const searchResults = await db.query('SELECT * FROM locations where searchtext @@ to_tsquery($1)', [req.params.searchTerm]);
+        const searchResults = await db.query("select lid, location_name, location_description, location_dangers, location_tags, location_biomes, location_header_url from (select locations.id as lid, locations.location_name as location_name, locations.location_description as location_description, locations.header_url as location_header_url, string_agg(biomes.biome_name, ' ') as location_biomes, string_agg(dangers.danger_name, '') as location_dangers, string_agg(tags.tag_name, ' ') as location_tags, to_tsvector(locations.location_name) || to_tsvector(locations.location_description) || to_tsvector(coalesce((string_agg(biomes.biome_name, '')), '')) || to_tsvector(coalesce((string_agg(dangers.danger_name, '')), '')) || to_tsvector(coalesce((string_agg(tags.tag_name, ' ')), '')) as document from locations left join locations_biomes on locations_biomes.location_id = locations.id left join biomes on biomes.id = locations_biomes.biome_id left join locations_dangers on locations_dangers.location_id = locations.id left join dangers on dangers.id = locations_dangers.danger_id left join locations_tags on locations_tags.location_id = locations.id left join tags on tags.id = locations_tags.tag_id group by locations.id, locations.location_name, locations.location_description, locations.header_url) location_search where location_search.document @@ to_tsquery('english', $1)", [req.params.searchTerm]);
+        // biomes, tags, dangers, builder, location name, world name
+        
         res.status(200).json({
             status: "success",
             data: {

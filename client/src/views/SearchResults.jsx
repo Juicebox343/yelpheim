@@ -14,12 +14,12 @@ const SearchResults = () => {
   return (
     <>
     <Header />
-    <main className="search-results">
+    <main className="search-results-page">
 
       <Panel/>
       <section className="main-container">
       <Search />
-      <ul className="searchResults">
+      <ul className="search-results">
         {searchResults !== null && searchResults.length > 0 && searchResults.map((result) => {
             return <SingleResult result={result}/>;
           })}

@@ -329,18 +329,17 @@ aside{
 
 
 .hoverHands{
-    transform: scale(1);
-    transition: transform .1s;
+    transform: translateY(0);
+    transition: transform .15s, box-shadow .15s;
 }
 
 .hoverHands:hover{
-    transform: scale(1.05);
-
+    transform: translateY(-5px);
+    box-shadow: 1px 4px 8px #041d27a8;
 }
 
 .locationList h3{
     margin: 1rem;
-
 }
 
 .locationList a{
@@ -430,17 +429,67 @@ li.addLocationLink{
     width: 100%;
 }
 
-.search-results .main-container li{
+.search-results{
+    display: flex;
+    flex-direction: column;
+}
+
+.search-results > li{
     list-style-type: none;
     width: 100%;
     height: 200px;
     background-color: #005073;
-    display: grid;
-    grid-template-columns: 1fr 4fr 1fr;
-    grid-template-rows: 1fr 2fr 1fr;
+    margin: 1rem 0;
 }
 
-.search-results .main-container li img{
-    height: 100%;
-    width: auto;
+.search-results > li:first-of-type{
+    margin-top: 0;
+    margin-bottom: 1rem;
 }
+
+
+.search-results > li a {
+    display: grid;
+    text-decoration: none;
+    grid-template-columns: 1fr 4fr 1fr;
+    grid-template-rows: 1fr 2fr 1fr;
+    gap: 1rem;
+}
+
+.search-results > li a img{
+    height: 200px;
+    width: auto;
+    grid-row: 1 / 4;
+    grid-column: 1 / 2;
+}
+
+.search-results > li a h3{
+    margin: 1rem 0;
+    grid-row: 1 / 4;
+    grid-column: 2 / 3;
+}
+
+.search-results .description{
+    grid-row: 2 / 3;
+    grid-column: 2 / 3;
+}
+
+.search-results .tags{
+    grid-row: 3 / 4;
+    grid-column: 2 / 3;
+    list-style-type: none;
+    border-top: 1px solid white;
+}
+
+.tags li{
+    height: 100%;
+    line-height: 235%;
+}
+
+.search-results .dangers{
+    grid-row: 1 / 3;
+    grid-column: 3 / 4;
+    list-style-type: none;
+}
+
+

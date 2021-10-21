@@ -45,6 +45,7 @@ const Home = (props) => {
 
   useEffect(() => {
     removeLocalStorage("selectedLocation");
+    removeLocalStorage("searchResults");
     setSelectedLocation({});
   }, []);
 

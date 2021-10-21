@@ -114,3 +114,294 @@ WITH select1 AS(SELECT id, username FROM worlds LEFT JOIN worlds_users ON worlds
 select sess -> 'passport' -> 'user' from session where CAST (sess -> 'passport' ->> 'user' AS VARCHAR) = 'Juicebox343';
 
 await db.query("SELECT sess -> 'passport' -> 'user' FROM session WHERE CAST (sess -> 'passport' ->> 'user' AS VARCHAR) = $1;", [req.user.username]);
+
+
+
+
+
+
+
+
+
+
+
+-- 
+
+
+	select
+	locations.location_name || ' ' || 
+coalesce((string_agg(biomes.biome_name , ' ')), '') 
+as document
+from
+	locations
+join locations_biomes on
+	locations_biomes.location_id = locations.id
+join biomes on
+	biomes.id = locations_biomes.biome_id
+group by
+	locations.location_name
+	
+
+
+select
+	to_tsvector(locations.location_name) ||
+	to_tsvector(locations.location_description) ||
+	to_tsvector(coalesce(locations.builder_username, '')) ||
+	to_tsvector(worlds.world_name) ||
+	to_tsvector(coalesce((string_agg(biomes.biome_name, '')), '')) ||
+	to_tsvector(coalesce((string_agg(dangers.danger_name, '')), '')) ||
+	to_tsvector(coalesce((string_agg(tags.tag_name, ' ')), ''))
+	as document
+from
+	locations
+left join locations_biomes on
+	locations_biomes.location_id = locations.id
+left join biomes on
+	biomes.id = locations_biomes.biome_id
+left join locations_dangers on
+	locations_dangers.location_id = locations.id
+left join dangers on
+	dangers.id = locations_dangers.danger_id
+left join locations_tags on
+	locations_tags.location_id = locations.id
+left join tags on
+	tags.id = locations_tags.tag_id
+left join worlds on 
+	worlds.id = locations.world_id
+group by
+	locations.location_name,
+	locations.location_description,
+	locations.builder_username,
+	worlds.world_name
+	
+
+UPDATE locations SET searchtext = 
+	to_tsvector(locations.location_name) ||
+	to_tsvector(locations.location_description) ||
+	to_tsvector(coalesce(locations.builder_username, '')) ||
+	to_tsvector(worlds.world_name) ||
+	to_tsvector(coalesce((string_agg(biomes.biome_name, '')), '')) ||
+	to_tsvector(coalesce((string_agg(dangers.danger_name, '')), '')) ||
+	to_tsvector(coalesce((string_agg(tags.tag_name, ' ')), ''))
+	as document
+from
+	locations
+left join locations_biomes on
+	locations_biomes.location_id = locations.id
+left join biomes on
+	biomes.id = locations_biomes.biome_id
+left join locations_dangers on
+	locations_dangers.location_id = locations.id
+left join dangers on
+	dangers.id = locations_dangers.danger_id
+left join locations_tags on
+	locations_tags.location_id = locations.id
+left join tags on
+	tags.id = locations_tags.tag_id
+left join worlds on 
+	worlds.id = locations.world_id
+group by
+	locations.location_name,
+	locations.location_description,
+	locations.builder_username,
+	worlds.world_name
+	
+
+	
+	
+	
+	with cte_search as (
+select 
+	to_tsvector(locations.location_name) ||
+	to_tsvector(locations.location_description) ||
+	to_tsvector(coalesce(locations.builder_username, '')) ||
+	to_tsvector(worlds.world_name) ||
+	to_tsvector(coalesce((string_agg(biomes.biome_name, '')), '')) ||
+	to_tsvector(coalesce((string_agg(dangers.danger_name, '')), '')) ||
+	to_tsvector(coalesce((string_agg(tags.tag_name, ' ')), ''))
+	as document
+from
+	locations
+left join locations_biomes on
+	locations_biomes.location_id = locations.id
+left join biomes on
+	biomes.id = locations_biomes.biome_id
+left join locations_dangers on
+	locations_dangers.location_id = locations.id
+left join dangers on
+	dangers.id = locations_dangers.danger_id
+left join locations_tags on
+	locations_tags.location_id = locations.id
+left join tags on
+	tags.id = locations_tags.tag_id
+left join worlds on 
+	worlds.id = locations.world_id
+group by
+	locations.location_name,
+	locations.location_description,
+	locations.builder_username,
+	worlds.world_name
+)
+update
+	locations
+set
+	searchtext = cte_search.document
+from
+	cte_search
+
+
+
+
+    with my_cte as (select
+	locations.location_name || ' ' ||
+	locations.location_description || ' ' ||
+	coalesce(locations.builder_username, '') || ' ' ||
+	worlds.world_name || ' ' ||
+	coalesce((string_agg(biomes.biome_name, '')), '') || ' ' ||
+	coalesce((string_agg(dangers.danger_name, '')), '') || ' ' ||
+	coalesce((string_agg(tags.tag_name, ' ')), '')
+	as document
+from
+	locations
+left join locations_biomes on
+	locations_biomes.location_id = locations.id
+left join biomes on
+	biomes.id = locations_biomes.biome_id
+left join locations_dangers on
+	locations_dangers.location_id = locations.id
+left join dangers on
+	dangers.id = locations_dangers.danger_id
+left join locations_tags on
+	locations_tags.location_id = locations.id
+left join tags on
+	tags.id = locations_tags.tag_id
+left join worlds on 
+	worlds.id = locations.world_id
+group by
+	locations.location_name,
+	locations.location_description,
+	locations.builder_username,
+	worlds.world_name) 
+	update locations set searchtext = to_tsvector('english', my_cte.document) from my_cte
+	
+
+	
+	
+with my_cte as (select
+    locations.id,
+	locations.location_name,
+	locations.location_description,
+	coalesce((string_agg(biomes.biome_name, '')), ' ')  as biome_name,
+	coalesce((string_agg(dangers.danger_name, '')), ' ')  as danger_name,
+	coalesce((string_agg(tags.tag_name, ' ')), ' ')  as tag_name
+from
+	locations
+left join locations_biomes on
+	locations_biomes.location_id = locations.id
+left join biomes on
+	biomes.id = locations_biomes.biome_id
+left join locations_dangers on
+	locations_dangers.location_id = locations.id
+left join dangers on
+	dangers.id = locations_dangers.danger_id
+left join locations_tags on
+	locations_tags.location_id = locations.id
+left join tags on
+	tags.id = locations_tags.tag_id
+group by
+	locations.id,
+	locations.location_name,
+	locations.location_description) 
+update locations set searchtext = to_tsvector('english', my_cte.location_name || ' ' || my_cte.location_description || ' ' || my_cte.biome_name || ' ' || my_cte.danger_name || ' ' || my_cte.tag_name) from my_cte where my_cte.id = locations.id
+	
+
+	
+
+    create trigger ts_searchtext before
+insert
+    or
+update
+    on
+    public.locations for each row execute function tsvector_update_trigger('searchtext', 'pg_catalog.english', 'location_name', 'location_description')
+
+select lid, l_name, l_desc, l_dangers, l_tags, l_biomes from
+(select 
+	locations.id as lid,
+	locations.location_name as l_name,
+	locations.location_description as l_desc,
+	string_agg(biomes.biome_name, '') as l_biomes,
+	string_agg(dangers.danger_name, '') as l_dangers,
+	string_agg(tags.tag_name, ' ') as l_tags,
+	to_tsvector(locations.location_name) ||
+	to_tsvector(locations.location_description) ||
+	to_tsvector(coalesce(locations.builder_username, '')) ||
+	to_tsvector(worlds.world_name) ||
+	to_tsvector(coalesce((string_agg(biomes.biome_name, '')), '')) ||
+	to_tsvector(coalesce((string_agg(dangers.danger_name, '')), '')) ||
+	to_tsvector(coalesce((string_agg(tags.tag_name, ' ')), ''))
+	as document
+from
+	locations
+left join locations_biomes on
+	locations_biomes.location_id = locations.id
+left join biomes on
+	biomes.id = locations_biomes.biome_id
+left join locations_dangers on
+	locations_dangers.location_id = locations.id
+left join dangers on
+	dangers.id = locations_dangers.danger_id
+left join locations_tags on
+	locations_tags.location_id = locations.id
+left join tags on
+	tags.id = locations_tags.tag_id
+left join worlds on 
+	worlds.id = locations.world_id
+group by
+locations.id,
+	locations.location_name,
+	locations.location_description,
+	locations.builder_username,
+	worlds.world_name
+) l_search
+where l_search.document @@ to_tsquery('swamp & mountain'); 
+
+select lid, l_name, l_desc, l_dangers, l_tags, l_biomes from
+(select 
+	locations.id as lid,
+	locations.location_name as l_name,
+	locations.location_description as l_desc,
+	string_agg(biomes.biome_name, '') as l_biomes,
+	string_agg(dangers.danger_name, '') as l_dangers,
+	string_agg(tags.tag_name, ' ') as l_tags,
+	to_tsvector(locations.location_name) ||
+	to_tsvector(locations.location_description) ||
+	to_tsvector(coalesce(locations.builder_username, '')) ||
+	to_tsvector(worlds.world_name) ||
+	to_tsvector(coalesce((string_agg(biomes.biome_name, '')), '')) ||
+	to_tsvector(coalesce((string_agg(dangers.danger_name, '')), '')) ||
+	to_tsvector(coalesce((string_agg(tags.tag_name, ' ')), ''))
+	as document
+from
+	locations
+left join locations_biomes on
+	locations_biomes.location_id = locations.id
+left join biomes on
+	biomes.id = locations_biomes.biome_id
+left join locations_dangers on
+	locations_dangers.location_id = locations.id
+left join dangers on
+	dangers.id = locations_dangers.danger_id
+left join locations_tags on
+	locations_tags.location_id = locations.id
+left join tags on
+	tags.id = locations_tags.tag_id
+left join worlds on 
+	worlds.id = locations.world_id
+group by
+locations.id,
+	locations.location_name,
+	locations.location_description,
+	locations.builder_username,
+	worlds.world_name
+) l_search
+where l_search.document @@ to_tsquery('swamp & mountain'); 
