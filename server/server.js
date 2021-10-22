@@ -271,14 +271,33 @@ app.post("/api/v1/locations", isLoggedIn, upload.array('locationImage'), async (
     }
 })
 
-//Update a location
-app.put("/api/v1/locations/:location_id", isLoggedIn, upload.single('location-image'), async (req, res) =>{
+//Upload images
+app.post("/api/v1/images", isLoggedIn, upload.single('images'), async (req, res) =>{
     imageObject = {
         url: req.file.path,
         filename: req.file.filename
     }
     try{
+        const newImage = await db.query("INSERT INTO images (name, url, uploader, entity_id) VALUES ($1, $2, $3, $4) returning *", [req.file.filename, req.file.path, req.body.added_by, req.body.entity]);
+    res.status(200).json({
+        status: "success",
+        data: {
+            location_id: newLocation.rows[0]
+        }
+    });
+} catch (err){
+    console.log(err);
+}
+
+})
+
+
+//Update a location
+app.put("/api/v1/locations/:location_id", isLoggedIn, async (req, res) =>{
+    try{
         const results = await db.query("UPDATE locations SET location_name = $1, location_description = $2, biome  = $3, builder_username = $4, WHERE id = $5 returning *", [req.body.location_name, req.body.location_description, req.body.biome, req.body.builder_username, req.params.location_id]);
+
+        const image = await db.query("UPDATE images ")
         res.status(200).json({
             status: "success",
             data: {
@@ -305,69 +324,69 @@ app.delete("/api/v1/locations/:location_id", isLoggedIn, async (req, res) =>{
 
 
 
-// Get all worlds and data for a user
-app.get("/api/v1/worlds/:world_id", isLoggedIn, async (req, res) =>{
-    try{
-        const world_data = await db.query("SELECT id, world_name, seed, owner_username AS world_owner, bosses_defeated FROM worlds LEFT JOIN worlds_users ON worlds_users.world_id = worlds.id WHERE worlds_users.username = $1;", [req.user.username]);
-        const location_data = await db.query("SELECT id, location_name, world_id, builder_username FROM locations WHERE world_id = $1;", [req.params.world_id])
-        const resident_data = await db.query("SELECT first_name, users.username FROM users RIGHT JOIN worlds_users ON worlds_users.username = users.username WHERE worlds_users.world_id = $1;", [req.params.world_id])
-        const my_locations = await db.query("SELECT id, location_name, world_id, builder_username FROM locations WHERE builder_username = $1;", [req.user.username])
-        res.status(200).json({
-            status: "success",
-            data: {
-                world_data: world_data.rows,
-                location_data: location_data.rows,
-                resident_data: resident_data.rows,
-                my_locations: my_locations.rows,
-            }
-        });
-    } catch (err){
-        console.log(err);
-    } 
-})
+// // Get all worlds and data for a user
+// app.get("/api/v1/worlds/:world_id", isLoggedIn, async (req, res) =>{
+//     try{
+//         const world_data = await db.query("SELECT id, world_name, seed, owner_username AS world_owner, bosses_defeated FROM worlds LEFT JOIN worlds_users ON worlds_users.world_id = worlds.id WHERE worlds_users.username = $1;", [req.user.username]);
+//         const location_data = await db.query("SELECT id, location_name, world_id, builder_username FROM locations WHERE world_id = $1;", [req.params.world_id])
+//         const resident_data = await db.query("SELECT first_name, users.username FROM users RIGHT JOIN worlds_users ON worlds_users.username = users.username WHERE worlds_users.world_id = $1;", [req.params.world_id])
+//         const my_locations = await db.query("SELECT id, location_name, world_id, builder_username FROM locations WHERE builder_username = $1;", [req.user.username])
+//         res.status(200).json({
+//             status: "success",
+//             data: {
+//                 world_data: world_data.rows,
+//                 location_data: location_data.rows,
+//                 resident_data: resident_data.rows,
+//                 my_locations: my_locations.rows,
+//             }
+//         });
+//     } catch (err){
+//         console.log(err);
+//     } 
+// })
 
 
-//Add a world
-app.post("/api/v1/worlds", isLoggedIn, async (req, res) =>{
-    try{
-        const newWorld = await db.query("WITH insert1 AS(INSERT INTO worlds (world_name, owner_username, seed, bosses_defeated) VALUES ($1, $2, $3, $4) RETURNING id as world_id, owner_username AS username) INSERT INTO worlds_users (world_id, username) SELECT world_id, username FROM insert1;", [req.body.world_name, req.body.owner_username, req.body.seed, req.body.bosses_defeated]);
-        res.status(200).json({
-            status: "success",
-            data: {
-                world_id: newWorld.rows[0]
-            }
-        });
-    } catch (err){
-        console.log(err);
-    }
-})
+// //Add a world
+// app.post("/api/v1/worlds", isLoggedIn, async (req, res) =>{
+//     try{
+//         const newWorld = await db.query("WITH insert1 AS(INSERT INTO worlds (world_name, owner_username, seed, bosses_defeated) VALUES ($1, $2, $3, $4) RETURNING id as world_id, owner_username AS username) INSERT INTO worlds_users (world_id, username) SELECT world_id, username FROM insert1;", [req.body.world_name, req.body.owner_username, req.body.seed, req.body.bosses_defeated]);
+//         res.status(200).json({
+//             status: "success",
+//             data: {
+//                 world_id: newWorld.rows[0]
+//             }
+//         });
+//     } catch (err){
+//         console.log(err);
+//     }
+// })
 
-//Update a World
-app.put("/api/v1/worlds/:id", isLoggedIn, async (req, res) =>{
-    try{
-        const results = await db.query("UPDATE worlds SET world_name = $1, seed = $2, bosses_defeated = $3 WHERE id = $4 returning *", [req.body.world_name, req.body.seed, req.body.bosses_defeated, req.params.id]);
-        res.status(200).json({
-            status: "success",
-            data: {
-                location: results.rows[0]
-            }
-        })
-    } catch (err) {
-        console.log(err)
-    }
-})
+// //Update a World
+// app.put("/api/v1/worlds/:id", isLoggedIn, async (req, res) =>{
+//     try{
+//         const results = await db.query("UPDATE worlds SET world_name = $1, seed = $2, bosses_defeated = $3 WHERE id = $4 returning *", [req.body.world_name, req.body.seed, req.body.bosses_defeated, req.params.id]);
+//         res.status(200).json({
+//             status: "success",
+//             data: {
+//                 location: results.rows[0]
+//             }
+//         })
+//     } catch (err) {
+//         console.log(err)
+//     }
+// })
 
-//Delete a World
-app.delete("/api/v1/worlds/:id", isLoggedIn, async (req, res) =>{
-    try{
-        const results = db.query("DELETE FROM worlds WHERE id = $1", [req.params.id])
-        res.status(204).json({
-            status: "success"
-        });
-    } catch (err){
-        console.log(err)
-    }
-})
+// //Delete a World
+// app.delete("/api/v1/worlds/:id", isLoggedIn, async (req, res) =>{
+//     try{
+//         const results = db.query("DELETE FROM worlds WHERE id = $1", [req.params.id])
+//         res.status(204).json({
+//             status: "success"
+//         });
+//     } catch (err){
+//         console.log(err)
+//     }
+// })
 
 
 // search
