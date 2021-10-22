@@ -492,4 +492,19 @@ li.addLocationLink{
     list-style-type: none;
 }
 
+.location-detail{
+    width: 800px;
+    display: flex;
+    flex-direction: column;
+}
+
+.location-detail header{
+    display: flex;
+    flex-direction: column;
+    height: initial;
+}
+
+.location-image{
+    max-width: 500px;
+}
 

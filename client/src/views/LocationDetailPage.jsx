@@ -47,6 +47,7 @@ const LocationDetailPage = () => {
     const fetchData = async () => {
       try {
         const response = await publicFetch.get(`/locations/${location_id}`);
+        console.log(response.data.data.selectedLocation[0])
         setSelectedLocation(response.data.data.selectedLocation[0]);
         setLocalStorage(
           "selectedLocation",
@@ -67,7 +68,7 @@ const LocationDetailPage = () => {
         <section className="main-container">
           <Link to="/">&#8592;</Link>
           {Object.entries(selectedLocation).length !== 0 && (
-            <div>
+            <div className="location-detail">
               <header>
                 <h1>{selectedLocation.location_name}</h1>
                 <img
@@ -79,7 +80,8 @@ const LocationDetailPage = () => {
 
               <p>
                 Nestled in the
-                {selectedLocation.biomes.length > 1
+                {/* {selectedLocation.biomes !== null && 
+                  selectedLocation.biomes.length > 1
                   ? selectedLocation.biomes.map((biome, index) => {
                       if (index === selectedLocation.biomes.length - 1) {
                         return " " + biome.biome_name + " biomes";
@@ -92,7 +94,7 @@ const LocationDetailPage = () => {
                     })
                   : selectedLocation.biomes.map((biome, index) => {
                       return " " + biome.biome_name + " biome";
-                    })}
+                    })} */}
               </p>
               <p>{selectedLocation.location_description}</p>
               <p>
@@ -117,10 +119,10 @@ const LocationDetailPage = () => {
               </div>
             </div>
           )}
-        </section> */}
+        </section>
       </main>
     </>
-  );
+  )
 };
 
 export default LocationDetailPage;

@@ -405,3 +405,76 @@ locations.id,
 	worlds.world_name
 ) l_search
 where l_search.document @@ to_tsquery('swamp & mountain'); 
+
+
+select
+	locations.id,
+	locations.location_name,
+	locations.location_description,
+	locations.builder_username,
+	worlds.world_name,
+	string_agg(distinct biomes.biome_name, ' '),
+	string_agg(distinct tags.tag_name, ' '),
+	string_agg(distinct dangers.danger_name, ' ')
+from
+	locations
+left join locations_biomes on
+	locations_biomes.location_id = locations.id
+left join biomes on
+	biomes.id = locations_biomes.biome_id
+left join locations_dangers on
+	locations_dangers.location_id = locations.id
+left join dangers on
+	dangers.id = locations_dangers.danger_id
+left join locations_tags on
+	locations_tags.location_id = locations.id
+left join tags on
+	tags.id = locations_tags.tag_id
+left join worlds on
+	worlds.id = locations.world_id
+where
+	locations.id = 23
+group by	
+	locations.id,
+	locations.location_name,
+	locations.location_description,
+	locations.builder_username,
+	worlds.world_name
+
+
+-- THIS ONE JOE
+select
+	locations.id,
+	locations.location_name,
+	locations.location_description,
+	locations.builder_username,
+	locations.header_url,
+	worlds.world_name,
+	array_agg(distinct biomes.biome_name) biomes,
+	array_agg(distinct tags.tag_name) tags,
+	array_agg(distinct dangers.danger_name) dangers
+from
+	locations
+left join locations_biomes on
+	locations_biomes.location_id = locations.id
+left join biomes on
+	biomes.id = locations_biomes.biome_id
+left join locations_dangers on
+	locations_dangers.location_id = locations.id
+left join dangers on
+	dangers.id = locations_dangers.danger_id
+left join locations_tags on
+	locations_tags.location_id = locations.id
+left join tags on
+	tags.id = locations_tags.tag_id
+left join worlds on
+	worlds.id = locations.world_id
+where
+	locations.id = 23
+group by	
+	locations.id,
+	locations.location_name,
+	locations.location_description,
+	locations.builder_username,
+	locations.header_url,
+	worlds.world_name

@@ -244,7 +244,7 @@ app.get("/api/v1", async (req, res) =>{
 // Location detail page
 app.get("/api/v1/locations/:location_id", isLoggedIn, async (req, res) =>{
     try{
-        const selectedLocation = await db.query("select locations.id, locations.location_name, locations.location_description, locations.builder_username, biomes.biome_name, worlds.world_name, tags.tag_name, dangers.danger_name from locations left join locations_biomes on locations_biomes.location_id = locations.id left join biomes on biomes.id = locations_biomes.biome_id left join locations_dangers on locations_dangers.location_id = locations.id left join dangers on dangers.id = locations_dangers.danger_id left join locations_tags on locations_tags.location_id = locations.id left join tags on tags.id = locations_tags.tag_id left join worlds on worlds.id = locations.world_id where locations.id = $1", [req.params.location_id]);
+        const selectedLocation = await db.query("select locations.id, locations.location_name, locations.location_description, locations.builder_username, locations.header_url, worlds.world_name, array_agg(distinct biomes.biome_name) biomes, array_agg(distinct tags.tag_name) tags, array_agg(distinct dangers.danger_name) dangers from locations left join locations_biomes on locations_biomes.location_id = locations.id left join biomes on biomes.id = locations_biomes.biome_id left join locations_dangers on locations_dangers.location_id = locations.id left join dangers on dangers.id = locations_dangers.danger_id left join locations_tags on locations_tags.location_id = locations.id left join tags on tags.id = locations_tags.tag_id left join worlds on worlds.id = locations.world_id where locations.id = $1 group by locations.id, locations.location_name, locations.location_description, locations.builder_username, locations.header_url,worlds.world_name", [req.params.location_id]);
         res.status(200).json({
             status: "success",
             data: {
@@ -253,6 +253,52 @@ app.get("/api/v1/locations/:location_id", isLoggedIn, async (req, res) =>{
         });
     } catch (err){
         console.log(err);
+    }
+})
+
+//Add a location
+app.post("/api/v1/locations", isLoggedIn, upload.array('locationImage'), async (req, res) =>{
+    try{
+        const newLocation = await db.query("INSERT INTO locations (location_name, location_description, biome, builder_username, world_id, added_by) VALUES ($1, $2, $3, $4, $5, $6) returning *", [req.body.location_name, req.body.location_description, req.body.biome, req.body.builder_username, req.params.world_id, req.body.added_by]);
+        res.status(200).json({
+            status: "success",
+            data: {
+                location_id: newLocation.rows[0]
+            }
+        });
+    } catch (err){
+        console.log(err);
+    }
+})
+
+//Update a location
+app.put("/api/v1/locations/:location_id", isLoggedIn, upload.single('location-image'), async (req, res) =>{
+    imageObject = {
+        url: req.file.path,
+        filename: req.file.filename
+    }
+    try{
+        const results = await db.query("UPDATE locations SET location_name = $1, location_description = $2, biome  = $3, builder_username = $4, WHERE id = $5 returning *", [req.body.location_name, req.body.location_description, req.body.biome, req.body.builder_username, req.params.location_id]);
+        res.status(200).json({
+            status: "success",
+            data: {
+                location: results.rows[0]
+            }
+        })
+    } catch (err) {
+        console.log(err)
+    }
+})
+
+//Delete a location
+app.delete("/api/v1/locations/:location_id", isLoggedIn, async (req, res) =>{
+    try{
+        const results = db.query("DELETE FROM locations WHERE id = $1", [req.params.location_id])
+        res.status(204).json({
+            status: "success"
+        });
+    } catch (err){
+        console.log(err)
     }
 })
 
@@ -323,47 +369,6 @@ app.delete("/api/v1/worlds/:id", isLoggedIn, async (req, res) =>{
     }
 })
 
-//Add a location
-app.post("/api/v1/locations", isLoggedIn, upload.array('locationImage'), async (req, res) =>{
-    try{
-        const newLocation = await db.query("INSERT INTO locations (location_name, location_description, biome, builder_username, world_id, added_by) VALUES ($1, $2, $3, $4, $5, $6) returning *", [req.body.location_name, req.body.location_description, req.body.biome, req.body.builder_username, req.params.world_id, req.body.added_by]);
-        res.status(200).json({
-            status: "success",
-            data: {
-                location_id: newLocation.rows[0]
-            }
-        });
-    } catch (err){
-        console.log(err);
-    }
-})
-
-//Update a location
-app.put("/api/v1/locations/:location_id/update", isLoggedIn, async (req, res) =>{
-    try{
-        const results = await db.query("UPDATE locations SET location_name = $1, location_description = $2, biome  = $3, builder_username = $4, WHERE id = $5 returning *", [req.body.location_name, req.body.location_description, req.body.biome, req.body.builder_username, req.params.location_id]);
-        res.status(200).json({
-            status: "success",
-            data: {
-                location: results.rows[0]
-            }
-        })
-    } catch (err) {
-        console.log(err)
-    }
-})
-
-//Delete a location
-app.delete("/api/v1/locations/:location_id", isLoggedIn, async (req, res) =>{
-    try{
-        const results = db.query("DELETE FROM locations WHERE id = $1", [req.params.location_id])
-        res.status(204).json({
-            status: "success"
-        });
-    } catch (err){
-        console.log(err)
-    }
-})
 
 // search
 app.get("/api/v1/search/:searchTerm", async (req, res) =>{

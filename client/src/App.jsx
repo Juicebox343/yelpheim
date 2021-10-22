@@ -30,14 +30,14 @@ const App = () => {
             />
             <Route
               exact
-              path="/locations/:location_id/update"
+              path="/locations/:location_id/edit"
               component={LocationEditPage}
             />
             <Route exact path="/locations/new" component={AddLocationPage} />
             <Route exact path="/worlds/:world_id" component={WorldDetailPage} />
             <Route
               exact
-              path="/worlds/:world_id/update"
+              path="/worlds/:world_id/edit"
               component={WorldEditPage}
             />
             <Route exact path="/search" component={SearchResults} />

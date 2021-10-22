@@ -46,7 +46,7 @@ const LocationEditPage = (e) => {
   }, []);
 
   useEffect(() => {
-    selectedLocation.biomes.forEach((biome) => {
+    selectedLocation.biomes && selectedLocation.biomes !== null && selectedLocation.biomes.forEach((biome) => {
       let biomeID = parseInt(biome.id) - 1;
       const updatedCheckedState = checkedState.map((item, index) => {
         if (index === biomeID) {
@@ -111,7 +111,7 @@ const LocationEditPage = (e) => {
             <div>
               <h1>Editing {selectedLocation.location_name}</h1>
               <form encType="multipart/form-data">
-                <label>
+                <label>Main image
                   <input
                     type="file"
                     name="location-image"

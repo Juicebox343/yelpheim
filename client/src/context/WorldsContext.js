@@ -27,10 +27,9 @@ export const WorldsContextProvider = (props) => {
         const world = JSON.parse(localStorage.getItem('selectedWorld'))
         setAllWorlds(world)
       }
-
       if(localStorage.getItem('selectedLocation')){
         const location = JSON.parse(localStorage.getItem('selectedLocation'))
-        setAllLocations(location)
+        setSelectedLocation(location)
       }
       if(localStorage.getItem('searchResults')){
         const prevSearch = JSON.parse(localStorage.getItem('searchResults'))
