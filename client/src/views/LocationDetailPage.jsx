@@ -5,6 +5,7 @@ import { publicFetch } from "../apis/fetch";
 import Header from "../components/Header";
 import { AuthContext } from "../context/AuthContext";
 import Panel from "../components/Panel";
+import noImage from "../images/no_image.png";
 
 const LocationDetailPage = () => {
   let history = useHistory();
@@ -16,6 +17,8 @@ const LocationDetailPage = () => {
     setSelectedWorld,
     selectedLocation,
     setSelectedLocation,
+    selectedLocationGallery,
+    setSelectedLocationGallery,
     setLocalStorage,
     locationData,
     setLocationData,
@@ -47,10 +50,15 @@ const LocationDetailPage = () => {
     const fetchData = async () => {
       try {
         const response = await publicFetch.get(`/locations/${location_id}`);
-        console.log(response.data.data.selectedLocation[0])
+        console.log(response.data.data);
         setSelectedLocation(response.data.data.selectedLocation[0]);
         setLocalStorage(
           "selectedLocation",
+          response.data.data.selectedLocation[0]
+        );
+        setSelectedLocationGallery(response.data.data.locationImages);
+        setLocalStorage(
+          "selectedLocationGallery",
           response.data.data.selectedLocation[0]
         );
       } catch (err) {
@@ -67,34 +75,50 @@ const LocationDetailPage = () => {
         <Panel />
         <section className="main-container">
           <Link to="/">&#8592;</Link>
-          {Object.entries(selectedLocation).length !== 0 && (
+          {selectedLocation && 
             <div className="location-detail">
               <header>
                 <h1>{selectedLocation.location_name}</h1>
-                <img
-                  src={selectedLocation.header_url}
-                  alt={selectedLocation.location_name}
-                  class="location-image"
-                />
+                {selectedLocationGallery.length ===
+                0 ? (
+                  <img src={noImage} class="location-image" />
+                ) : (
+                  <img
+                    src={
+                      selectedLocationGallery.length > 0 &&
+                      selectedLocationGallery.find(({is_main}) => is_main === true).url
+                    }
+                    alt={selectedLocation.location_name}
+                    class="location-image"
+                  />
+                )}
+
+                <div className="gallery">
+                  {selectedLocationGallery.length > 1 &&
+                    selectedLocationGallery.map((image) => {
+                      return <img src={image.url} />;
+                    })}
+                </div>
               </header>
 
               <p>
                 Nestled in the
-                {/* {selectedLocation.biomes !== null && 
-                  selectedLocation.biomes.length > 1
-                  ? selectedLocation.biomes.map((biome, index) => {
+                {selectedLocation.biomes && selectedLocation.biomes !== undefined &&selectedLocation.biomes.length === 1 && 
+                  selectedLocation.biomes.map((biome, index) => {
+                      return " " + biome + " biome";
+                 })}
+                {selectedLocation.biomes && selectedLocation.biomes !== undefined &&selectedLocation.biomes.length > 1 && 
+                  selectedLocation.biomes.map((biome, index) => {
                       if (index === selectedLocation.biomes.length - 1) {
-                        return " " + biome.biome_name + " biomes";
+                        return " " + biome + " biomes";
                       }
                       if (index !== selectedLocation.biomes.length - 2) {
-                        return " " + biome.biome_name + ", ";
+                        return " " + biome + ", ";
                       } else if (index !== selectedLocation.biomes.length - 1) {
-                        return " " + biome.biome_name + " and ";
+                        return " " + biome + " and ";
                       }
-                    })
-                  : selectedLocation.biomes.map((biome, index) => {
-                      return " " + biome.biome_name + " biome";
-                    })} */}
+                      return 'No biomes assigned'
+                    })}
               </p>
               <p>{selectedLocation.location_description}</p>
               <p>
@@ -118,11 +142,11 @@ const LocationDetailPage = () => {
                 </button>
               </div>
             </div>
-          )}
+          }
         </section>
       </main>
     </>
-  )
+  );
 };
 
 export default LocationDetailPage;

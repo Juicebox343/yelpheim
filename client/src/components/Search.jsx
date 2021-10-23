@@ -52,28 +52,28 @@ const Search = () => {
         <ul className="truncatedTagList">
           {allTags.length > 0 && (
             <li>
-              <Link to={`/tags/${allTags[2].tag_name}`}>
+              <Link to={`/search?${allTags[2].tag_name}`}>
                 {allTags[2].tag_name}
               </Link>
             </li>
           )}
           {allTags.length > 0 && (
             <li>
-              <Link to={`/tags/${allTags[15].tag_name}`}>
+              <Link to={`/search?${allTags[15].tag_name}`}>
                 {allTags[15].tag_name}
               </Link>
             </li>
           )}
           {allTags.length > 0 && (
             <li>
-              <Link to={`/tags/${allTags[8].tag_name}`}>
+              <Link to={`/search?${allTags[8].tag_name}`}>
                 {allTags[8].tag_name}
               </Link>
             </li>
           )}
           {allTags.length > 0 && (
             <li>
-              <Link to={`/tags/${allTags[21].tag_name}`}>
+              <Link to={`/search?${allTags[21].tag_name}`}>
                 {allTags[21].tag_name}
               </Link>
             </li>

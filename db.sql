@@ -478,3 +478,24 @@ group by
 	locations.builder_username,
 	locations.header_url,
 	worlds.world_name
+
+
+
+select
+	locations.id,
+	locations.location_name,
+	locations.location_description,
+	locations.builder_username,
+	locations.added_by,
+	locations.world_id,
+	images.id as image_id,
+	images.url as image_url,
+	images.image_name as image_name
+from
+	locations
+left join images on
+	images.entity_id = locations.id
+	and images.is_main = true
+order by
+	locations.created_at desc
+limit 5

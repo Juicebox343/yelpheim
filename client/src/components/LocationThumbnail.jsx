@@ -6,7 +6,7 @@ const LocationThumbnail = (location) => {
       key={location.location.id}
       className="hoverHands"
       style={{
-        backgroundImage: `url(${location.location.header_url})`,
+        backgroundImage: `url(${location.location.image_url})`,
         backgroundPosition: "center",
         backgroundSize: "cover",
       }}

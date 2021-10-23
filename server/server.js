@@ -185,7 +185,8 @@ app.get("/api/v1", async (req, res) =>{
             const tags = await db.query("SELECT id, tag_name FROM tags;");
             const biomes = await db.query("SELECT id, biome_name FROM biomes;");
             const dangers = await db.query("SELECT id, danger_name FROM dangers;");
-            const allLocations = await db.query("SELECT * FROM locations ORDER BY created_at DESC LIMIT 5;");
+            const allLocations = await db.query("select locations.id, locations.location_name, locations.location_description, locations.builder_username, locations.added_by, locations.world_id, images.id as image_id, images.url as image_url, images.image_name as image_name from locations left join images on images.entity_id = locations.id and images.is_main = true order by locations.created_at desc limit 5");
+            
             const allWorlds = await db.query("SELECT id, world_name, owner_username, seed, bosses_defeated, map_id, header_id FROM worlds;");
 
             // My Data
@@ -219,7 +220,7 @@ app.get("/api/v1", async (req, res) =>{
             const tags = await db.query("SELECT id, tag_name FROM tags;");
             const biomes = await db.query("SELECT id, biome_name FROM biomes;");
             const dangers = await db.query("SELECT id, danger_name FROM dangers;");
-            const allLocations = await db.query("SELECT id, location_name, world_id, builder_username FROM locations ORDER BY created_at DESC LIMIT 5;");
+            const allLocations = await db.query("select locations.id, locations.location_name, locations.location_description, locations.builder_username, locations.added_by, locations.world_id, images.id as image_id, images.url as image_url, images.image_name as image_name from locations left join images on images.entity_id = locations.id and images.is_main = true order by locations.created_at desc limit 5");
             const allWorlds = await db.query("SELECT id, world_name, owner_username, seed, bosses_defeated, map_id, header_id, FROM worlds;");
 
             res.status(200).json({
@@ -245,10 +246,14 @@ app.get("/api/v1", async (req, res) =>{
 app.get("/api/v1/locations/:location_id", isLoggedIn, async (req, res) =>{
     try{
         const selectedLocation = await db.query("select locations.id, locations.location_name, locations.location_description, locations.builder_username, locations.header_url, worlds.world_name, array_agg(distinct biomes.biome_name) biomes, array_agg(distinct tags.tag_name) tags, array_agg(distinct dangers.danger_name) dangers from locations left join locations_biomes on locations_biomes.location_id = locations.id left join biomes on biomes.id = locations_biomes.biome_id left join locations_dangers on locations_dangers.location_id = locations.id left join dangers on dangers.id = locations_dangers.danger_id left join locations_tags on locations_tags.location_id = locations.id left join tags on tags.id = locations_tags.tag_id left join worlds on worlds.id = locations.world_id where locations.id = $1 group by locations.id, locations.location_name, locations.location_description, locations.builder_username, locations.header_url,worlds.world_name", [req.params.location_id]);
+
+        const locationImages = await db.query("SELECT * FROM images WHERE entity_id = $1", [req.params.location_id]);
+
         res.status(200).json({
             status: "success",
             data: {
-                selectedLocation: selectedLocation.rows
+                selectedLocation: selectedLocation.rows,
+                locationImages: locationImages.rows
             }
         });
     } catch (err){
@@ -272,23 +277,22 @@ app.post("/api/v1/locations", isLoggedIn, upload.array('locationImage'), async (
 })
 
 //Upload images
-app.post("/api/v1/images", isLoggedIn, upload.single('images'), async (req, res) =>{
+app.post("/api/v1/images", isLoggedIn, upload.single('location-image'), async (req, res) =>{
+    console.log(req.file)
     imageObject = {
         url: req.file.path,
         filename: req.file.filename
     }
     try{
-        const newImage = await db.query("INSERT INTO images (name, url, uploader, entity_id) VALUES ($1, $2, $3, $4) returning *", [req.file.filename, req.file.path, req.body.added_by, req.body.entity]);
-    res.status(200).json({
-        status: "success",
-        data: {
-            location_id: newLocation.rows[0]
-        }
-    });
-} catch (err){
-    console.log(err);
-}
-
+        const newImage = await db.query("INSERT INTO images (image_name, url, uploader, entity_id) VALUES ($1, $2, $3, $4) returning *", [imageObject.filename, imageObject.url, req.user.id, req.body.entity_id]);
+        const updatedGallery = await db.query("SELECT * FROM images WHERE entity_id = $1", [req.body.entity_id])
+        res.status(200).json({
+            status: "success",
+            data: {updatedGallery: updatedGallery.rows}
+        });
+    } catch (err){
+        console.log(err);
+    }
 })
 
 
@@ -297,7 +301,6 @@ app.put("/api/v1/locations/:location_id", isLoggedIn, async (req, res) =>{
     try{
         const results = await db.query("UPDATE locations SET location_name = $1, location_description = $2, biome  = $3, builder_username = $4, WHERE id = $5 returning *", [req.body.location_name, req.body.location_description, req.body.biome, req.body.builder_username, req.params.location_id]);
 
-        const image = await db.query("UPDATE images ")
         res.status(200).json({
             status: "success",
             data: {

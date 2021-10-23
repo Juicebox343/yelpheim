@@ -508,3 +508,21 @@ li.addLocationLink{
     max-width: 500px;
 }
 
+.gallery{
+    margin-top: 0.5rem;
+}
+
+.gallery img{
+    width: 150px;
+    margin: 0 .25rem;
+}
+
+.gallery img:first-of-type{
+    margin-left: 0;
+}
+
+.gallery image:last-of-type{
+    margin-right: 0;
+}
+
+

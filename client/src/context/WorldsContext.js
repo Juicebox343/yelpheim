@@ -7,6 +7,7 @@ export const WorldsContextProvider = (props) => {
   const [allLocations, setAllLocations ] = useState([]);
   const [selectedWorld, setSelectedWorld] = useState({});
   const [selectedLocation, setSelectedLocation] = useState({});
+  const [selectedLocationGallery, setSelectedLocationGallery] = useState({});
   const [allTags, setAllTags] = useState([]);
   const [myLocations, setMyLocations] = useState([])
   const [residentData, setResidentData] = useState([])
@@ -30,11 +31,19 @@ export const WorldsContextProvider = (props) => {
       if(localStorage.getItem('selectedLocation')){
         const location = JSON.parse(localStorage.getItem('selectedLocation'))
         setSelectedLocation(location)
+
+        
+      if(localStorage.getItem('selectedLocationGallery')){
+        const gallery = JSON.parse(localStorage.getItem('selectedLocationGallery'))
+        setSelectedLocationGallery(gallery)
+      }
+      
       }
       if(localStorage.getItem('searchResults')){
         const prevSearch = JSON.parse(localStorage.getItem('searchResults'))
         setSearchResults(prevSearch)
       }
+
     }
     getLocalStorage()
 },[]);
@@ -61,6 +70,8 @@ const removeLocalStorage = (key) => {
         setAllLocations,
         selectedLocation,
         setSelectedLocation,
+        selectedLocationGallery,
+        setSelectedLocationGallery,
         addLocations,
         allTags, 
         setAllTags,

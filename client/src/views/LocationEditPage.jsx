@@ -1,5 +1,6 @@
 import React, { useContext, useState, useEffect } from "react";
 import { WorldsContext } from "../context/WorldsContext";
+import { AuthContext } from "../context/AuthContext";
 import { useHistory, useParams, Link } from "react-router-dom";
 import { publicFetch } from "../apis/fetch";
 import Header from "../components/Header";
@@ -18,6 +19,10 @@ const LocationEditPage = (e) => {
     worldData,
     residentData,
   } = useContext(WorldsContext);
+
+  const {
+    userData
+  } = useContext(AuthContext)
 
   const [locationName, setLocationName] = useState("");
   const [builder, setBuilder] = useState("");
@@ -46,10 +51,12 @@ const LocationEditPage = (e) => {
   }, []);
 
   useEffect(() => {
-    selectedLocation.biomes && selectedLocation.biomes !== null && selectedLocation.biomes.forEach((biome) => {
-      let biomeID = parseInt(biome.id) - 1;
+    selectedLocation.biomes && selectedLocation.biomes !== undefined && selectedLocation.biomes.forEach((biome) => {
+      let checkedBiome = biomes.find(element => biome === element.name);
+      console.log(checkedBiome.value)
       const updatedCheckedState = checkedState.map((item, index) => {
-        if (index === biomeID) {
+        console.log(item)
+        if (item.name === biome) {
           return !item;
         } else {
           return item;
@@ -77,6 +84,33 @@ const LocationEditPage = (e) => {
     return tagsToSend;
   };
 
+  
+  const config = {
+    headers: { "content-type": "multipart/form-data" },
+  };
+
+  const uploadImageHandler = async (e) => {
+    e.preventDefault();
+    let imageFormData = new FormData();
+    imageFormData.append('location-image', imageUpload)
+    imageFormData.append('added_by', userData.id)
+    imageFormData.append('entity_id', selectedLocation.id)
+
+    try{
+      const serverData = await publicFetch.post(
+        `/images`,
+        imageFormData,
+        config
+      );
+      setSelectedLocation(serverData.data.data.selectedLocation[0]);
+      //serverData.data.updatedGallery
+    } catch (err){
+      console.log(err)
+    }
+
+
+  }
+
   const updateLocationHandler = async (e) => {
     e.preventDefault();
 
@@ -85,16 +119,10 @@ const LocationEditPage = (e) => {
     formData.append("location_description", locationDescription);
     formData.append("biomes", handleCheckBoxBiomes());
     formData.append("builder_username", builder);
-    formData.append("image_upload", imageUpload);
-
-    const config = {
-      headers: { "content-type": "multipart/form-data" },
-    };
 
     const updatedLocation = await publicFetch.put(
       `/locations/${location_id}`,
-      formData,
-      config
+      formData
     );
     console.log(updatedLocation);
     history.push(`/locations/${location_id}`);
@@ -116,14 +144,24 @@ const LocationEditPage = (e) => {
                     type="file"
                     name="location-image"
                     onChange={(e) => setImageUpload(e.target.files[0])}
+                    multiple
                   ></input>
                   <img
                     id="image-preview"
                     src={
                       imageUpload !== null && URL.createObjectURL(imageUpload)
                     }
-                  />
+                  /> 
+
+                  <div className='gallery'>
+                    {selectedLocation.i}
+                  </div>
                 </label>
+                <button type="submit" onClick={uploadImageHandler}>
+                  Upload Image
+                </button>
+          </form>
+          <form>
                 <label>
                   Location Name
                   <input
