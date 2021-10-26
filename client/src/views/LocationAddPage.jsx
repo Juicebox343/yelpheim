@@ -28,7 +28,7 @@ const LocationAddPage = () => {
   // const [builderUser, setbuilderUser] = useState("Resident");
 
   const biomes = [
-    { name: "Meadow", value: 1 },
+    { name: "Meadows", value: 1 },
     { name: "Black Forest", value: 2 },
     { name: "Swamp", value: 3 },
     { name: "Mountain", value: 4 },

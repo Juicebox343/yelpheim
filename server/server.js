@@ -298,14 +298,17 @@ app.post("/api/v1/images", isLoggedIn, upload.single('location-image'), async (r
 
 //Update a location
 app.put("/api/v1/locations/:location_id", isLoggedIn, async (req, res) =>{
+    console.log(req.body.biome)
     try{
-        const results = await db.query("UPDATE locations SET location_name = $1, location_description = $2, biome  = $3, builder_username = $4, WHERE id = $5 returning *", [req.body.location_name, req.body.location_description, req.body.biome, req.body.builder_username, req.params.location_id]);
+        const location = await db.query("UPDATE locations SET location_name = $1, location_description = $2, builder_username = $3 WHERE id = $4", [req.body.location_name, req.body.location_description, req.body.builder_username, req.params.location_id]);
+        const biomeStuff = await db.query("DELETE FROM locations_biomes WHERE location_id = $1", [req.params.location_id])
+        req.body.biome.forEach(async (biome) => {
+            const updateBiomes = await db.query("INSERT INTO locations_biomes (biome_id, location_id) VALUES($1, $2);", [biome, req.params.location_id])  
+        })
+
 
         res.status(200).json({
-            status: "success",
-            data: {
-                location: results.rows[0]
-            }
+            status: "success"
         })
     } catch (err) {
         console.log(err)

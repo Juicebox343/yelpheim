@@ -9,7 +9,6 @@ import Panel from "../components/Panel";
 import { imagePreview } from "../scripts";
 
 const LocationEditPage = (e) => {
-  const { world_id, location_id } = useParams();
   let history = useHistory();
   const {
     selectedLocation,
@@ -30,7 +29,7 @@ const LocationEditPage = (e) => {
   const [imageUpload, setImageUpload] = useState(null);
 
   const biomes = [
-    { name: "Meadow", value: 1 },
+    { name: "Meadows", value: 1 },
     { name: "Black Forest", value: 2 },
     { name: "Swamp", value: 3 },
     { name: "Mountain", value: 4 },
@@ -50,21 +49,27 @@ const LocationEditPage = (e) => {
     setLocationDescription(selectedLocation.location_description);
   }, []);
 
+
+
+
   useEffect(() => {
     selectedLocation.biomes && selectedLocation.biomes !== undefined && selectedLocation.biomes.forEach((biome) => {
       let checkedBiome = biomes.find(element => biome === element.name);
-      console.log(checkedBiome.value)
+      console.log(checkedBiome)
       const updatedCheckedState = checkedState.map((item, index) => {
-        console.log(item)
-        if (item.name === biome) {
-          return !item;
+        if (index === checkedBiome.value - 1) {
+          return updatedCheckedState.append(!item);
         } else {
-          return item;
+          return updatedCheckedState.append(item);
         }
+       
       });
       setCheckedState(updatedCheckedState);
     });
   }, []);
+
+
+
 
   const handleOnChange = (position) => {
     const updatedCheckedState = checkedState.map((item, index) =>
@@ -80,7 +85,7 @@ const LocationEditPage = (e) => {
         tagsToSend.push(biomes[index].value);
       }
     });
-    console.log("tags to send " + typeof tagsToSend);
+    console.log("tags to send " + tagsToSend);
     return tagsToSend;
   };
 
@@ -113,20 +118,23 @@ const LocationEditPage = (e) => {
 
   const updateLocationHandler = async (e) => {
     e.preventDefault();
-
-    let formData = new FormData();
-    formData.append("location_name", locationName);
-    formData.append("location_description", locationDescription);
-    formData.append("biomes", handleCheckBoxBiomes());
-    formData.append("builder_username", builder);
-
-    const updatedLocation = await publicFetch.put(
-      `/locations/${location_id}`,
-      formData
-    );
-    console.log(updatedLocation);
-    history.push(`/locations/${location_id}`);
+    try{
+      const updatedLocation = await publicFetch.put(
+        `/locations/${selectedLocation.id}`,
+        {
+          location_name: locationName,
+          location_description: locationDescription,
+          builder,
+          biome: handleCheckBoxBiomes()
+        } 
+   
+      );
+      history.push(`/locations/${selectedLocation.id}`);
+    } catch(err){
+      console.log(err)
+    }
   };
+
 
   return (
     <>
@@ -134,7 +142,7 @@ const LocationEditPage = (e) => {
       <main>
         <Panel />
         <section className="main-container">
-          <Link to={`/locations/${location_id}`}>&#8592;</Link>
+          <Link to={`/locations/${selectedLocation.id}`}>&#8592;</Link>
           {Object.entries(selectedLocation).length !== 0 && (
             <div>
               <h1>Editing {selectedLocation.location_name}</h1>
@@ -161,6 +169,7 @@ const LocationEditPage = (e) => {
                   Upload Image
                 </button>
           </form>
+
           <form>
                 <label>
                   Location Name
