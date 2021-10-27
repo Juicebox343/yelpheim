@@ -19,89 +19,68 @@ const LocationEditPage = (e) => {
     residentData,
   } = useContext(WorldsContext);
 
-  const {
-    userData
-  } = useContext(AuthContext)
+  const { userData } = useContext(AuthContext);
 
   const [locationName, setLocationName] = useState("");
   const [builder, setBuilder] = useState("");
   const [locationDescription, setLocationDescription] = useState("");
   const [imageUpload, setImageUpload] = useState(null);
 
-  const biomes = [
-    { name: "Meadows", value: 1 },
-    { name: "Black Forest", value: 2 },
-    { name: "Swamp", value: 3 },
-    { name: "Mountain", value: 4 },
-    { name: "Plains", value: 5 },
-    { name: "Mistlands", value: 6 },
-    { name: "Ashlands", value: 7 },
-    { name: "Deep North", value: 8 },
-    { name: "Ocean", value: 9 },
-  ];
-
-  const [checkedState, setCheckedState] = useState(
-    new Array(biomes.length).fill(false)
-  );
+  const [checkedState, setCheckedState] = useState([
+    { name: "Meadows", value: 1, isChecked: false },
+    { name: "Black Forest", value: 2, isChecked: false },
+    { name: "Swamp", value: 3, isChecked: false },
+    { name: "Mountain", value: 4, isChecked: false },
+    { name: "Plains", value: 5, isChecked: false },
+    { name: "Mistlands", value: 6, isChecked: false },
+    { name: "Ashlands", value: 7, isChecked: false },
+    { name: "Deep North", value: 8, isChecked: false },
+    { name: "Ocean", value: 9, isChecked: false }
+  ]);
 
   useEffect(() => {
     setLocationName(selectedLocation.location_name);
     setLocationDescription(selectedLocation.location_description);
+    setBuilder(selectedLocation.builder);
+
+    selectedLocation.biomes.forEach((biome) =>{
+      handleOnChange(checkedState.map(e => e.name).indexOf(biome))
+    })
+    
   }, []);
-
-
-
-
-  useEffect(() => {
-    selectedLocation.biomes && selectedLocation.biomes !== undefined && selectedLocation.biomes.forEach((biome) => {
-      let checkedBiome = biomes.find(element => biome === element.name);
-      console.log(checkedBiome)
-      const updatedCheckedState = checkedState.map((item, index) => {
-        if (index === checkedBiome.value - 1) {
-          return updatedCheckedState.append(!item);
-        } else {
-          return updatedCheckedState.append(item);
-        }
-       
-      });
-      setCheckedState(updatedCheckedState);
-    });
-  }, []);
-
-
-
+  
 
   const handleOnChange = (position) => {
-    const updatedCheckedState = checkedState.map((item, index) =>
-      index === position ? !item : item
-    );
-    setCheckedState(updatedCheckedState);
-  };
+    const updatedCheck = checkedState
+    updatedCheck[position].isChecked = !updatedCheck[position].isChecked
+    setCheckedState([...updatedCheck])
+    };
+
 
   const handleCheckBoxBiomes = () => {
-    let tagsToSend = new Array();
+    let tagsToSend = [];
     checkedState.map((checkbox, index) => {
-      if (checkbox === true) {
-        tagsToSend.push(biomes[index].value);
+      if (checkbox.isChecked === true) {
+        tagsToSend.push(index + 1);
       }
     });
-    console.log("tags to send " + tagsToSend);
     return tagsToSend;
   };
 
-  
-  const config = {
-    headers: { "content-type": "multipart/form-data" },
-  };
 
   const uploadImageHandler = async (e) => {
     e.preventDefault();
-    let imageFormData = new FormData();
-    imageFormData.append('location-image', imageUpload)
-    imageFormData.append('added_by', userData.id)
-    imageFormData.append('entity_id', selectedLocation.id)
+    
+    const config = {
+      headers: { "content-type": "multipart/form-data" },
+    };
 
-    try{
+    let imageFormData = new FormData();
+    imageFormData.append("location-image", imageUpload);
+    imageFormData.append("added_by", userData.id);
+    imageFormData.append("entity_id", selectedLocation.id);
+
+    try {
       const serverData = await publicFetch.post(
         `/images`,
         imageFormData,
@@ -109,32 +88,28 @@ const LocationEditPage = (e) => {
       );
       setSelectedLocation(serverData.data.data.selectedLocation[0]);
       //serverData.data.updatedGallery
-    } catch (err){
-      console.log(err)
+    } catch (err) {
+      console.log(err);
     }
-
-
-  }
+  };
 
   const updateLocationHandler = async (e) => {
     e.preventDefault();
-    try{
+    try {
       const updatedLocation = await publicFetch.put(
         `/locations/${selectedLocation.id}`,
         {
           location_name: locationName,
           location_description: locationDescription,
           builder,
-          biome: handleCheckBoxBiomes()
-        } 
-   
+          biome: handleCheckBoxBiomes(),
+        }
       );
       history.push(`/locations/${selectedLocation.id}`);
-    } catch(err){
-      console.log(err)
+    } catch (err) {
+      console.log(err);
     }
   };
-
 
   return (
     <>
@@ -147,7 +122,8 @@ const LocationEditPage = (e) => {
             <div>
               <h1>Editing {selectedLocation.location_name}</h1>
               <form encType="multipart/form-data">
-                <label>Main image
+                <label>
+                  Main image
                   <input
                     type="file"
                     name="location-image"
@@ -159,18 +135,15 @@ const LocationEditPage = (e) => {
                     src={
                       imageUpload !== null && URL.createObjectURL(imageUpload)
                     }
-                  /> 
-
-                  <div className='gallery'>
-                    {selectedLocation.i}
-                  </div>
+                  />
+                  <div className="gallery">{selectedLocation.i}</div>
                 </label>
                 <button type="submit" onClick={uploadImageHandler}>
                   Upload Image
                 </button>
-          </form>
+              </form>
 
-          <form>
+              <form>
                 <label>
                   Location Name
                   <input
@@ -189,15 +162,15 @@ const LocationEditPage = (e) => {
                 </label>
                 <h3>Biome:</h3>
                 <ul>
-                  {biomes &&
-                    biomes.map(({ name, value }, index) => {
+                  {checkedState && checkedState.length > 0 &&
+                    checkedState.map(({ name, value, isChecked}, index) => {
                       return (
                         <li key={index}>
                           <label>
                             <input
                               type="checkbox"
                               name="biome"
-                              checked={checkedState[index]}
+                              checked={isChecked}
                               onChange={() => handleOnChange(index)}
                               value={value}
                             />

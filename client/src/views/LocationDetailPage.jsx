@@ -50,7 +50,6 @@ const LocationDetailPage = () => {
     const fetchData = async () => {
       try {
         const response = await publicFetch.get(`/locations/${location_id}`);
-        console.log(response.data.data);
         setSelectedLocation(response.data.data.selectedLocation[0]);
         setLocalStorage(
           "selectedLocation",

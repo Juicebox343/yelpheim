@@ -298,7 +298,6 @@ app.post("/api/v1/images", isLoggedIn, upload.single('location-image'), async (r
 
 //Update a location
 app.put("/api/v1/locations/:location_id", isLoggedIn, async (req, res) =>{
-    console.log(req.body.biome)
     try{
         const location = await db.query("UPDATE locations SET location_name = $1, location_description = $2, builder_username = $3 WHERE id = $4", [req.body.location_name, req.body.location_description, req.body.builder_username, req.params.location_id]);
         const biomeStuff = await db.query("DELETE FROM locations_biomes WHERE location_id = $1", [req.params.location_id])
