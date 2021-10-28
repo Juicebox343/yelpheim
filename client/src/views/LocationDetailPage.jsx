@@ -11,21 +11,11 @@ const LocationDetailPage = () => {
   let history = useHistory();
   const { world_id, location_id } = useParams();
   const {
-    worldData,
-    setWorldData,
-    selectedWorld,
-    setSelectedWorld,
     selectedLocation,
     setSelectedLocation,
     selectedLocationGallery,
     setSelectedLocationGallery,
     setLocalStorage,
-    locationData,
-    setLocationData,
-    addLocations,
-    addWorlds,
-    tagData,
-    setTagData,
     myLocations,
     setMyLocations,
   } = useContext(WorldsContext);
@@ -50,6 +40,7 @@ const LocationDetailPage = () => {
     const fetchData = async () => {
       try {
         const response = await publicFetch.get(`/locations/${location_id}`);
+
         setSelectedLocation(response.data.data.selectedLocation[0]);
         setLocalStorage(
           "selectedLocation",
@@ -58,7 +49,7 @@ const LocationDetailPage = () => {
         setSelectedLocationGallery(response.data.data.locationImages);
         setLocalStorage(
           "selectedLocationGallery",
-          response.data.data.selectedLocation[0]
+          response.data.data.locationImages
         );
       } catch (err) {
         console.log(err);
@@ -78,10 +69,11 @@ const LocationDetailPage = () => {
             <div className="location-detail">
               <header>
                 <h1>{selectedLocation.location_name}</h1>
+
                 {selectedLocationGallery.length ===
-                0 ? (
-                  <img src={noImage} class="location-image" />
-                ) : (
+                0 ?
+                  <img src={noImage} class="location-image" alt={selectedLocation.location_name}/>
+                :
                   <img
                     src={
                       selectedLocationGallery.length > 0 &&
@@ -90,12 +82,12 @@ const LocationDetailPage = () => {
                     alt={selectedLocation.location_name}
                     class="location-image"
                   />
-                )}
+                }
 
                 <div className="gallery">
                   {selectedLocationGallery.length > 1 &&
                     selectedLocationGallery.map((image) => {
-                      return <img src={image.url} />;
+                      return <img src={image.url} alt={image.id}/>;
                     })}
                 </div>
               </header>

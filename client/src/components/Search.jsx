@@ -15,7 +15,7 @@ const Search = () => {
     e.preventDefault();
     try {
       const response = await publicFetch.get(
-        `/search/${userSearch}`
+        `/search/${sendingText(userSearch)}`
       );
       setSearchResults(response.data.data.searchResults);
       setLocalStorage('searchResults', response.data.data.searchResults)

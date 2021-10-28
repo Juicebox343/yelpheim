@@ -14,6 +14,7 @@ const Home = (props) => {
   const {
     setAllWorlds,
     selectedWorld,
+    setLocalStorage,
     setAllTags,
     removeLocalStorage,
     allLocations,
@@ -21,32 +22,16 @@ const Home = (props) => {
     setMyLocations,
     setAllBiomes,
     setSelectedLocation,
+    setSelectedLocationGallery
   } = useContext(WorldsContext);
 
   const { userData, isLoggedIn } = useContext(AuthContext);
 
   useEffect(() => {
-    const fetchData = async () => {
-
-      try {
-        const response = await publicFetch.get("/");
-        setAllLocations(response.data.data.allLocations);
-        setAllWorlds(response.data.data.myWorlds);
-        setAllTags(response.data.data.tags);
-        setAllBiomes(response.data.data.biomes);
-        setMyLocations(response.data.data.myLocations);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    fetchData();
-  }, [isLoggedIn]);
-  
-
-  useEffect(() => {
     removeLocalStorage("selectedLocation");
     removeLocalStorage("searchResults");
     setSelectedLocation({});
+    setSelectedLocationGallery([]);
   }, []);
 
   return (

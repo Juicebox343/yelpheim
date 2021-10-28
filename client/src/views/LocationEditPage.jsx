@@ -17,6 +17,9 @@ const LocationEditPage = (e) => {
     setLocationData,
     worldData,
     residentData,
+    allTags,
+    allDangers,
+    allBiomes,
   } = useContext(WorldsContext);
 
   const { userData } = useContext(AuthContext);
@@ -26,40 +29,79 @@ const LocationEditPage = (e) => {
   const [locationDescription, setLocationDescription] = useState("");
   const [imageUpload, setImageUpload] = useState(null);
 
-  const [checkedState, setCheckedState] = useState([
-    { name: "Meadows", value: 1, isChecked: false },
-    { name: "Black Forest", value: 2, isChecked: false },
-    { name: "Swamp", value: 3, isChecked: false },
-    { name: "Mountain", value: 4, isChecked: false },
-    { name: "Plains", value: 5, isChecked: false },
-    { name: "Mistlands", value: 6, isChecked: false },
-    { name: "Ashlands", value: 7, isChecked: false },
-    { name: "Deep North", value: 8, isChecked: false },
-    { name: "Ocean", value: 9, isChecked: false }
-  ]);
+  let initialTagState = [];
+  allTags.forEach((tag) => {
+    initialTagState.push({
+      name: tag.tag_name,
+      value: parseInt(tag.id),
+      isChecked: false,
+    });
+  });
+
+  let initialDangerState = [];
+  allDangers.forEach((danger) => {
+    initialDangerState.push({
+      name: danger.danger_name,
+      value: parseInt(danger.id),
+      isChecked: false,
+    });
+  });
+
+  let initialBiomeState = [];
+  allBiomes.forEach((biome) => {
+    initialBiomeState.push({
+      name: biome.biome_name,
+      value: parseInt(biome.id),
+      isChecked: false,
+    });
+  });
+
+  const [checkedBiomes, setCheckedBiomes] = useState(initialBiomeState);
+  const [checkedTags, setCheckedTags] = useState(initialTagState);
+  const [checkedDangers, setCheckedDangers] = useState(initialDangerState);
 
   useEffect(() => {
     setLocationName(selectedLocation.location_name);
     setLocationDescription(selectedLocation.location_description);
     setBuilder(selectedLocation.builder);
 
-    selectedLocation.biomes.forEach((biome) =>{
-      handleOnChange(checkedState.map(e => e.name).indexOf(biome))
-    })
-    
+    locationBiomes();
+    locationDangers();
   }, []);
-  
 
-  const handleOnChange = (position) => {
-    const updatedCheck = checkedState
-    updatedCheck[position].isChecked = !updatedCheck[position].isChecked
-    setCheckedState([...updatedCheck])
-    };
+  const locationBiomes = () =>
+    selectedLocation.biomes.forEach((biome) => {
+      // console.log(typeof(biome))
+      // console.log(checkedBiomes.map(e => e.name).indexOf(biome), 'biome')
+      handleOnChange(checkedBiomes.map((e) => e.name).indexOf(biome), "biome");
+    });
 
+  const locationDangers = () =>
+    selectedLocation.dangers.forEach((danger) => {
+      // console.log(typeof(danger))
+      // console.log(checkedDangers.map(e => e.name).indexOf(danger), 'danger')
+      handleOnChange(
+        checkedDangers.map((e) => e.name).indexOf(danger),
+        "danger"
+      );
+    });
+
+  const handleOnChange = (position, type) => {
+    if (type === "biome") {
+      const updatedCheck = checkedBiomes;
+      updatedCheck[position].isChecked = !updatedCheck[position].isChecked;
+      setCheckedBiomes([...updatedCheck]);
+    } else if (type === "danger") {
+      console.log(position);
+      const updatedCheck = checkedDangers;
+      updatedCheck[position].isChecked = !updatedCheck[position].isChecked;
+      setCheckedDangers([...updatedCheck]);
+    }
+  };
 
   const handleCheckBoxBiomes = () => {
     let tagsToSend = [];
-    checkedState.map((checkbox, index) => {
+    checkedBiomes.map((checkbox, index) => {
       if (checkbox.isChecked === true) {
         tagsToSend.push(index + 1);
       }
@@ -67,10 +109,9 @@ const LocationEditPage = (e) => {
     return tagsToSend;
   };
 
-
   const uploadImageHandler = async (e) => {
     e.preventDefault();
-    
+
     const config = {
       headers: { "content-type": "multipart/form-data" },
     };
@@ -119,7 +160,7 @@ const LocationEditPage = (e) => {
         <section className="main-container">
           <Link to={`/locations/${selectedLocation.id}`}>&#8592;</Link>
           {Object.entries(selectedLocation).length !== 0 && (
-            <div>
+            <div className="location-edit">
               <h1>Editing {selectedLocation.location_name}</h1>
               <form encType="multipart/form-data">
                 <label>
@@ -162,8 +203,9 @@ const LocationEditPage = (e) => {
                 </label>
                 <h3>Biome:</h3>
                 <ul>
-                  {checkedState && checkedState.length > 0 &&
-                    checkedState.map(({ name, value, isChecked}, index) => {
+                  {checkedBiomes &&
+                    checkedBiomes.length > 0 &&
+                    checkedBiomes.map(({ name, value, isChecked }, index) => {
                       return (
                         <li key={index}>
                           <label>
@@ -171,10 +213,31 @@ const LocationEditPage = (e) => {
                               type="checkbox"
                               name="biome"
                               checked={isChecked}
-                              onChange={() => handleOnChange(index)}
+                              onChange={() => handleOnChange(index, "biome")}
                               value={value}
                             />
-                            <div>{name}</div>
+                            <span>{name}</span>
+                          </label>
+                        </li>
+                      );
+                    })}
+                </ul>
+                <h3>Local Dangers:</h3>
+                <ul>
+                  {checkedDangers &&
+                    checkedDangers.length > 0 &&
+                    checkedDangers.map(({ name, value, isChecked }, index) => {
+                      return (
+                        <li key={index}>
+                          <label>
+                            <input
+                              type="checkbox"
+                              name="danger"
+                              checked={isChecked}
+                              onChange={() => handleOnChange(index, "danger")}
+                              value={value}
+                            />
+                            <span>{name}</span>
                           </label>
                         </li>
                       );
